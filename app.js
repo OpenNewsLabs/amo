@@ -8,7 +8,7 @@ var request = require('request'),
     url  = require('url'),
     http = require('http'),
     fs = require('fs'),
-    jquery = fs.readFileSync('jquery.js').toString();;
+    jquery = fs.readFileSync('jquery.js').toString();
 
 
 http.createServer(function (req, res) {
@@ -19,6 +19,7 @@ http.createServer(function (req, res) {
       query = url_parts.query,
       getFacebookShares,
       getTwitterShares,
+      getLinkedInShares,
       getGooglePlusOnes,
       shareObj,
       init;
@@ -37,7 +38,7 @@ http.createServer(function (req, res) {
             };
             shareObj.facebook = fbShares;
             console.log('Facebook Shares', fbShares)
-            shareObj.total = shareObj.googlePlus.count + shareObj.twitter.count + shareObj.facebook.shares + shareObj.facebook.comments + shareObj.facebook.likes;
+            shareObj.total = shareObj.googlePlus.count + shareObj.linkedin.count + shareObj.twitter.count + shareObj.facebook.shares + shareObj.facebook.comments + shareObj.facebook.likes;
             res.end(JSON.stringify(shareObj));
           }
         }); // end simplexml.parse
@@ -65,6 +66,21 @@ http.createServer(function (req, res) {
       });
 
     }; // end getTwitterShares()
+
+    getLinkedInShares = function(url, shareObj){
+      request('http://www.linkedin.com/countserv/count/share?format=json&url='+url, function (err, res, body){
+        console.log(res);
+        if(!err && res.statusCode === 200){
+          console.log('LinkedIn shares', body);
+          var linkedinCount = {
+                count: JSON.parse(body).count
+              };
+          
+          shareObj.linkedin = linkedinCount;
+          getTwitterShares(url, shareObj);
+        }
+      });      
+    }
 
     getGooglePlusOnes = function(url, shareObj){
       
@@ -97,12 +113,13 @@ http.createServer(function (req, res) {
         html: gPlusOneUrl(),
         src: [jquery],
         done: function(errors, window) {
-
+          if (errors) return;
           var $ = window.$;
           var count = $('#aggregateCount').text();
           plusOneCount.count = Number(count);
           shareObj.googlePlus = plusOneCount;
-          getTwitterShares(url, shareObj);
+          window.close()
+          getLinkedInShares(url, shareObj);
         }
       });
     }; // end getGooglePlusOnes
