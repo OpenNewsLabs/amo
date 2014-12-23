@@ -37,7 +37,8 @@ http.createServer(function (req, res) {
             };
             shareObj.facebook = fbShares;
             console.log('Facebook Shares', fbShares)
-            shareObj.total = shareObj.googlePlus.count + shareObj.twitter.count + shareObj.facebook.shares + shareObj.facebook.comments + shareObj.facebook.likes;
+            shareObj.total = shareObj.twitter.count + shareObj.facebook.shares + shareObj.facebook.comments + shareObj.facebook.likes;
+            console.log(shareObj)
             res.end(JSON.stringify(shareObj));
           }
         }); // end simplexml.parse
@@ -66,55 +67,10 @@ http.createServer(function (req, res) {
 
     }; // end getTwitterShares()
 
-    getGooglePlusOnes = function(url, shareObj){
-      
-      var gPlusOneId = function () {
-            return ["I1_", (new Date()).getTime()].join("");
-          },
-          gPlusOneRpc = function(){
-            var prePreRpc = crypto.randomBytes(32).readUInt32BE(0),
-                preRpc = Number("0." + prePreRpc),
-                rpc = Math.round(1E9 * (0, preRpc));
-            return rpc
-          },
-          gPlusOneUrl = function(){
-            var uri = '';
-                uri += "https://plusone.google.com/_/+1/fastbutton?";
-                uri += "url=" + url;
-                uri += "&size=standard";
-                uri += "&hl=en-US";
-                uri += "sh=m;/_/apps-static/_/js/gapi/__features__/rt=j/ver=zVTxVnVbJog.en_US./sv=1/am=!FRwcaGMpC1CIJ0aI4g/d=1/#id=" + gPlusOneId();
-                uri += "&parent=true";
-                uri += "&rpctoken=" + gPlusOneRpc();
-                uri += "&_methods=onPlusOne,_ready,_close,_open,_resizeMe,_renderstart";
-            return uri;
-          },
-          plusOneCount = {
-            ccount: undefined
-          };
-
-      jsdom.env({
-        html: gPlusOneUrl(),
-        src: [jquery],
-        done: function(errors, window) {
-
-          var $ = window.$;
-          var count = $('#aggregateCount').text();
-          plusOneCount.count = Number(count);
-          shareObj.googlePlus = plusOneCount;
-          getTwitterShares(url, shareObj);
-        }
-      });
-    }; // end getGooglePlusOnes
-
-    shareObj = {
-      googlePlus: undefined,
-      twitter: undefined,
-      facebook: undefined
-    };
+    shareObj = {};
 
     init = function(){
-      getGooglePlusOnes(query.q, shareObj);
+      getTwitterShares(query.q, shareObj);
     };
 
     init();
