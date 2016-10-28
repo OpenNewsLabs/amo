@@ -1,4 +1,4 @@
-var request = require('request'), 
+var request = require('request'),
     http = require('http'),
     simplexml = require('xml-simple'),
     uuid = require('node-uuid'),
@@ -8,8 +8,7 @@ var request = require('request'),
     url  = require('url'),
     http = require('http'),
     fs = require('fs'),
-    jquery = fs.readFileSync('jquery.js').toString();;
-
+    jquery = fs.readFileSync('jquery.js').toString
 
 http.createServer(function (req, res) {
 
@@ -22,11 +21,9 @@ http.createServer(function (req, res) {
       getGooglePlusOnes,
       shareObj,
       init;
-  
+
   if(query.q){
-
     getFacebookShares = function(url, shareObj){
-
       request('http://api.facebook.com/restserver.php?method=links.getStats&urls=' +url, function (err, r, body){
         simplexml.parse(body, function(e, parsed) {
           if(parsed !== undefined){
@@ -43,7 +40,6 @@ http.createServer(function (req, res) {
           }
         }); // end simplexml.parse
       });
-
     };
 
     getTwitterShares = function(url, shareObj){
@@ -59,13 +55,12 @@ http.createServer(function (req, res) {
               tweetCount = {
                 count: tweet.count
               };
-          
+
           shareObj.twitter = tweetCount;
           getFacebookShares(url, shareObj);
         }
       });
-
-    }; // end getTwitterShares()
+    };
 
     shareObj = {};
 
@@ -74,11 +69,9 @@ http.createServer(function (req, res) {
     };
 
     init();
-
   }else{
     res.end('ERROR! Your request contains no query. Please provide a query like so the following: http://amo.jit.su/?q=http://www.linkToQuery.com');
   }
-
 
 }).listen(1337, '0.0.0.0');
 
